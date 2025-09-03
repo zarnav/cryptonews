@@ -346,87 +346,109 @@
                 return `https://placehold.co/600x400/${color}/ffffff?text=${encodeURIComponent(keywords)}`;
             }
             
-            // Sample news data with actual URLs
-            const newsData = [
-                {
-                    title: "Bitcoin Surges Past $60,000 as Institutional Adoption Grows",
-                    description: "Bitcoin has broken through the $60,000 barrier again as major corporations continue to add cryptocurrency to their balance sheets.",
-                    source: "CryptoNews",
-                    date: "2 hours ago",
-                    url: "https://cointelegraph.com/news/bitcoin-price-briefly-tops-60k-as-bullish-momentum-builds",
-                    category: "bitcoin"
-                },
-                {
-                    title: "Ethereum 2.0 Upgrade Scheduled for December 1st",
-                    description: "The long-awaited Ethereum upgrade that will transition the network to proof-of-stake has officially been scheduled for launch.",
-                    source: "Blockchain Daily",
-                    date: "4 hours ago",
-                    url: "https://decrypt.co/103235/ethereum-2-0-launch-date-confirmed-december-1",
-                    category: "ethereum"
-                },
-                {
-                    title: "Central Bank Announces Digital Currency Pilot Program",
-                    description: "The Federal Reserve has revealed plans to test a digital dollar in partnership with several major financial institutions.",
-                    source: "Finance Times",
-                    date: "6 hours ago",
-                    url: "https://www.reuters.com/business/finance/us-federal-reserve-take-first-step-toward-possible-digital-dollar-2022-01-20/",
-                    category: "regulation"
-                },
-                {
-                    title: "NFT Market Sees Record Sales Despite Crypto Winter",
-                    description: "Non-fungible token sales have reached new highs as collectors continue to invest in digital art and collectibles.",
-                    source: "Digital Trends",
-                    date: "Yesterday",
-                    url: "https://www.theverge.com/2023/1/20/23563939/nft-sales-record-january-2023-cryptocurrency-winter",
-                    category: "nft"
-                },
-                {
-                    title: "DeFi Protocol Reaches $100 Billion in Total Value Locked",
-                    description: "The decentralized finance sector has reached a significant milestone as the total value locked in DeFi protocols crosses $100 billion.",
-                    source: "DeFi Insights",
-                    date: "2 days ago",
-                    url: "https://defipulse.com/",
-                    category: "defi"
-                },
-                {
-                    title: "Crypto Mining Council Reports Increased Sustainable Energy Usage",
-                    description: "The Bitcoin Mining Council has released a report showing that sustainable energy usage in Bitcoin mining has increased to 56%.",
-                    source: "Green Crypto",
-                    date: "3 days ago",
-                    url: "https://bitcoinminingcouncil.com/bitcoin-mining-council-survey-shows-bitcoin-mining-electricity-mix-is-56-sustainable/",
-                    category: "bitcoin"
-                },
-                {
-                    title: "Solana Announces Mobile Crypto Phone with Web3 Capabilities",
-                    description: "Solana Labs has unveiled plans for a mobile phone designed specifically for crypto users with built-in Web3 capabilities.",
-                    source: "Tech Crypto",
-                    date: "5 hours ago",
-                    url: "https://solana.com/news/solana-mobile-phone-announcement",
-                    category: "ethereum"
-                },
-                {
-                    title: "UK Government Announces Comprehensive Crypto Regulation Framework",
-                    description: "The UK has unveiled a comprehensive regulatory framework for cryptocurrencies aiming to protect investors while fostering innovation.",
-                    source: "Crypto Policy",
-                    date: "1 day ago",
-                    url: "https://www.gov.uk/government/news/uk-sets-out-plan-to-regulate-cryptoassets",
-                    category: "regulation"
-                }
+            // Live RSS-based news fetcher (no API key required)
+            // We'll fetch several crypto news RSS feeds through the AllOrigins CORS proxy,
+            // parse them, merge, sort by published date and show only the most recent items.
+            // Assumption: showing the top 12 newest items across sources satisfies "ONLY THE MOST updated news".
+
+            const RSS_FEEDS = [
+                { url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', source: 'CoinDesk' },
+                { url: 'https://cointelegraph.com/rss', source: 'Cointelegraph' },
+                { url: 'https://decrypt.co/feed', source: 'Decrypt' },
+                { url: 'https://www.theblock.co/feed', source: 'The Block' }
             ];
-            
-            // Function to generate news cards
+
+            const CORS_PROXY = 'https://api.allorigins.win/raw?url='; // public CORS proxy
+            const MAX_ITEMS = 12; // number of most-recent items to display
+
+            async function fetchFeed(feedUrl) {
+                try {
+                    const res = await fetch(CORS_PROXY + encodeURIComponent(feedUrl), { cache: 'no-store' });
+                    if (!res.ok) throw new Error('Feed fetch failed');
+                    const text = await res.text();
+                    const parser = new DOMParser();
+                    const xml = parser.parseFromString(text, 'text/xml');
+
+                    const items = Array.from(xml.querySelectorAll('item')).map(item => {
+                        const title = item.querySelector('title')?.textContent || '';
+                        const link = item.querySelector('link')?.textContent || item.querySelector('guid')?.textContent || '';
+                        const description = item.querySelector('description')?.textContent || '';
+                        const pubDate = item.querySelector('pubDate')?.textContent || item.querySelector('dc\:date')?.textContent || '';
+                        const isoDate = pubDate ? new Date(pubDate) : new Date();
+                        // attempt to find category or infer from title
+                        const category = (item.querySelector('category')?.textContent || '').toLowerCase();
+
+                        return {
+                            title: title.trim(),
+                            url: link.trim(),
+                            description: (description || '').replace(/<[^>]+>/g, '').trim(),
+                            date: isoDate,
+                            pubDateRaw: pubDate,
+                            source: '', // filled by caller
+                            category: category || inferCategoryFromTitle(title)
+                        };
+                    });
+
+                    return items;
+                } catch (err) {
+                    console.warn('Failed to fetch feed', feedUrl, err);
+                    return [];
+                }
+            }
+
+            function inferCategoryFromTitle(title) {
+                const t = title.toLowerCase();
+                if (t.includes('bitcoin') || t.includes('btc')) return 'bitcoin';
+                if (t.includes('ethereum') || t.includes('eth')) return 'ethereum';
+                if (t.includes('nft')) return 'nft';
+                if (t.includes('defi') || t.includes('decentral')) return 'defi';
+                if (t.includes('regulat') || t.includes('law') || t.includes('government')) return 'regulation';
+                return 'other';
+            }
+
+            // Merge feeds, dedupe by URL/title, sort by date desc and return top N
+            async function fetchLatestNews() {
+                const allItems = [];
+
+                await Promise.all(RSS_FEEDS.map(async feed => {
+                    const items = await fetchFeed(feed.url);
+                    items.forEach(it => {
+                        it.source = feed.source;
+                        allItems.push(it);
+                    });
+                }));
+
+                // dedupe by url (and title fallback)
+                const seen = new Set();
+                const deduped = allItems.filter(item => {
+                    const key = item.url || item.title;
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
+                });
+
+                deduped.sort((a, b) => b.date - a.date);
+
+                // keep only recent items (top MAX_ITEMS)
+                return deduped.slice(0, MAX_ITEMS);
+            }
+
+            function formatDate(date) {
+                try { return new Date(date).toLocaleString(); } catch (e) { return '' + date; }
+            }
+
             function generateNewsCards(newsItems) {
                 const newsContainer = document.getElementById('news-container');
                 newsContainer.innerHTML = '';
-                
+
                 newsItems.forEach(news => {
                     const newsCard = document.createElement('div');
                     newsCard.className = 'news-card';
-                    newsCard.dataset.category = news.category;
-                    
+                    newsCard.dataset.category = news.category || 'other';
+
                     // Generate AI image based on news content
                     const aiImageUrl = generateAIImage(news);
-                    
+
                     newsCard.innerHTML = `
                         <div class="news-image">
                             <img src="${aiImageUrl}" alt="${news.title}">
@@ -434,43 +456,51 @@
                         </div>
                         <div class="news-content">
                             <div class="news-source">
-                                <span>${news.source}</span>
-                                <span class="news-date">${news.date}</span>
+                                <span>${escapeHtml(news.source || '')}</span>
+                                <span class="news-date">${formatDate(news.date)}</span>
                             </div>
-                            <h3 class="news-title">${news.title}</h3>
-                            <p class="news-description">${news.description}</p>
-                            <a href="${news.url}" target="_blank" class="news-link">Read full story →</a>
+                            <h3 class="news-title">${escapeHtml(news.title)}</h3>
+                            <p class="news-description">${escapeHtml(news.description)}</p>
+                            <a href="${news.url}" target="_blank" rel="noopener noreferrer" class="news-link">Read full story →</a>
                         </div>
                     `;
-                    
+
                     newsContainer.appendChild(newsCard);
                 });
             }
-            
-            // Initial news load
-            generateNewsCards(newsData);
-            
+
+            function escapeHtml(str) {
+                return String(str || '').replace(/[&<>"']/g, function(s) {
+                    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[s];
+                });
+            }
+
+            async function loadAndShowLatest() {
+                const refreshBtn = document.getElementById('refresh-btn');
+                refreshBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Fetching...';
+                refreshBtn.disabled = true;
+
+                const news = await fetchLatestNews();
+
+                if (news.length === 0) {
+                    showNotification('Could not fetch live news. Showing cached content.');
+                } else {
+                    generateNewsCards(news);
+                    // set last-updated to the newest article time
+                    document.getElementById('update-time').textContent = formatDate(news[0].date);
+                    showNotification('News updated successfully!');
+                }
+
+                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh News';
+                refreshBtn.disabled = false;
+            }
+
+            // Initial live load
+            loadAndShowLatest();
+
             // Refresh button functionality
             document.getElementById('refresh-btn').addEventListener('click', function() {
-                const btn = this;
-                btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Refreshing...';
-                btn.disabled = true;
-                
-                // Simulate API fetch delay
-                setTimeout(() => {
-                    const now = new Date();
-                    document.getElementById('update-time').textContent = now.toLocaleString();
-                    
-                    // In a real application, you would fetch new data here
-                    // For this example, we'll just use the same data
-                    generateNewsCards(newsData);
-                    
-                    btn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh News';
-                    btn.disabled = false;
-                    
-                    // Show notification
-                    showNotification('News updated successfully!');
-                }, 1500);
+                loadAndShowLatest();
             });
             
             // Filter button functionality
@@ -516,10 +546,8 @@
                 
                 if (hours === 9 || hours === 13) {
                     showNotification('New news available! Refreshing...');
-                    generateNewsCards(newsData);
-                    
-                    const updatedNow = new Date();
-                    document.getElementById('update-time').textContent = updatedNow.toLocaleString();
+                    // fetch latest live news and display
+                    loadAndShowLatest();
                 }
             }
             
