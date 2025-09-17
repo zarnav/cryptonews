@@ -3,560 +3,313 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crypto Daily Pulse</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Progressive Voices</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        body {
-            background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
-            color: #f5f5f5;
-            min-height: 100vh;
-            padding-bottom: 40px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-        
-        .donation-container {
-            background: linear-gradient(90deg, #ff6b6b, #ff8e53);
-            padding: 12px 0;
-            text-align: center;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
-        
-        .donate-btn {
-            background: rgba(255, 255, 255, 0.9);
-            color: #ff6b6b;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1.1rem;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .donate-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-            background: #ffffff;
-        }
-        
-        .donate-btn:active {
-            transform: translateY(0);
-        }
-        
-        header {
-            text-align: center;
-            padding: 40px 0;
-            background: rgba(0, 0, 0, 0.2);
-            margin-bottom: 40px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        
-        h1 {
-            font-size: 2.8rem;
-            background: linear-gradient(90deg, #00c6ff, #0072ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-        
-        .last-updated {
-            color: #a0a0a0;
-            font-size: 0.9rem;
-            margin-top: 10px;
-        }
-        
-        .filters {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .filter-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            color: #f5f5f5;
-            padding: 10px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        
-        .filter-btn:hover, .filter-btn.active {
-            background: linear-gradient(90deg, #00c6ff, #0072ff);
-        }
-        
-        .news-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
-        }
-        
-        .news-card {
-            background: rgba(25, 35, 45, 0.6);
-            border-radius: 15px;
-            overflow: hidden;
+        .platform-twitter { border-left: 4px solid #1DA1F2; }
+        .platform-facebook { border-left: 4px solid #1877F2; }
+        .platform-instagram { border-left: 4px solid #E4405F; }
+        .platform-linkedin { border-left: 4px solid #0077B5; }
+        .post-card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
         }
-        
-        .news-card:hover {
+        .post-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
-        }
-        
-        .news-image {
-            height: 180px;
-            overflow: hidden;
-            position: relative;
-        }
-        
-        .news-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform 0.5s ease;
-        }
-        
-        .news-card:hover .news-image img {
-            transform: scale(1.05);
-        }
-        
-        .ai-generated-tag {
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #00c6ff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            font-weight: 600;
-        }
-        
-        .news-content {
-            padding: 20px;
-        }
-        
-        .news-source {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            font-size: 0.85rem;
-            color: #00c6ff;
-        }
-        
-        .news-date {
-            color: #8899a6;
-        }
-        
-        .news-title {
-            font-size: 1.3rem;
-            margin-bottom: 15px;
-            line-height: 1.4;
-            color: #ffffff;
-        }
-        
-        .news-description {
-            color: #ccd0d3;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            font-size: 0.95rem;
-        }
-        
-        .news-link {
-            display: inline-block;
-            color: #00c6ff;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: color 0.3s ease;
-        }
-        
-        .news-link:hover {
-            color: #ffffff;
-            text-decoration: underline;
-        }
-        
-        .refresh-container {
-            text-align: center;
-            margin: 40px 0;
-        }
-        
-        .refresh-btn {
-            background: linear-gradient(90deg, #00c6ff, #0072ff);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .refresh-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 15px rgba(0, 114, 255, 0.4);
-        }
-        
-        footer {
-            text-align: center;
-            margin-top: 60px;
-            color: #8899a6;
-            font-size: 0.9rem;
-        }
-        
-        .notification {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: #00c6ff;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 5px;
-            z-index: 1000;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.3s ease, transform 0.3s ease;
-        }
-        
-        .notification.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        
-        @media (max-width: 768px) {
-            .news-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            h1 {
-                font-size: 2.2rem;
-            }
-            
-            .donate-btn {
-                padding: 10px 20px;
-                font-size: 1rem;
-            }
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
-<body>
-    <div class="donation-container">
-        <button class="donate-btn" id="donate-btn">
-            <i class="fas fa-heart"></i> Support Our Project
-        </button>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-blue-600">Progressive Voices</span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="#" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600">Home</a>
+                    <a href="#" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600">About</a>
+                    <a href="#" class="px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600">Contact</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6" data-aos="fade-down">Progressive Voices Across Social Media</h1>
+            <p class="text-xl mb-8 max-w-3xl mx-auto" data-aos="fade-down" data-aos-delay="100">
+                Curated collection of inspiring posts about social progress, equality, and building a better future.
+            </p>
+            <div class="flex justify-center space-x-4" data-aos="fade-up" data-aos-delay="200">
+                <button class="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    Explore Posts
+                </button>
+                <button class="bg-transparent border-2 border-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition">
+                    Learn More
+                </button>
+            </div>
+        </div>
     </div>
 
-    <header>
-        <div class="container">
-            <div class="logo">
-                <i class="fab fa-bitcoin fa-3x" style="color: #00c6ff;"></i>
-                <h1>Crypto Daily Pulse</h1>
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="flex justify-between items-center mb-8">
+            <h2 class="text-2xl font-bold text-gray-800">Latest Progressive Posts</h2>
+            <div class="flex space-x-2">
+                <button class="px-4 py-2 bg-blue-100 text-blue-600 rounded-full text-sm font-medium">All</button>
+                <button class="px-4 py-2 hover:bg-gray-100 rounded-full text-sm font-medium">Twitter</button>
+                <button class="px-4 py-2 hover:bg-gray-100 rounded-full text-sm font-medium">Facebook</button>
+                <button class="px-4 py-2 hover:bg-gray-100 rounded-full text-sm font-medium">Instagram</button>
             </div>
-            <p>Your daily digest of cryptocurrency and blockchain news</p>
-            <div class="last-updated">Last updated: <span id="update-time">Loading...</span></div>
-        </div>
-    </header>
-
-    <div class="container">
-        <div class="filters">
-            <button class="filter-btn active" data-filter="all">All News</button>
-            <button class="filter-btn" data-filter="bitcoin">Bitcoin</button>
-            <button class="filter-btn" data-filter="ethereum">Ethereum</button>
-            <button class="filter-btn" data-filter="defi">DeFi</button>
-            <button class="filter-btn" data-filter="nft">NFT</button>
-            <button class="filter-btn" data-filter="regulation">Regulation</button>
         </div>
 
-        <div class="refresh-container">
-            <button class="refresh-btn" id="refresh-btn">
-                <i class="fas fa-sync-alt"></i> Refresh News
+        <!-- Posts Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Twitter Post 1 -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden post-card platform-twitter" data-aos="fade-up">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <img src="http://static.photos/people/200x200/1" alt="Profile" class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <h3 class="font-semibold">ProgressiveThinker</h3>
+                            <p class="text-gray-500 text-sm">@progthinker · 2h ago</p>
+                        </div>
+                        <div class="ml-auto">
+                            <i data-feather="twitter" class="text-blue-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        "The future belongs to those who believe in the beauty of their dreams." - Eleanor Roosevelt. 
+                        We must continue fighting for equality and justice for all. #Progress #Equality
+                    </p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4 text-gray-500">
+                            <span class="flex items-center"><i data-feather="message-circle" class="w-4 h-4 mr-1"></i> 24</span>
+                            <span class="flex items-center"><i data-feather="repeat" class="w-4 h-4 mr-1"></i> 12</span>
+                            <span class="flex items-center"><i data-feather="heart" class="w-4 h-4 mr-1"></i> 89</span>
+                        </div>
+                        <a href="https://twitter.com/progthinker/status/12345" target="_blank" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                            View on Twitter <i data-feather="external-link" class="w-4 h-4 inline"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Facebook Post -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden post-card platform-facebook" data-aos="fade-up" data-aos-delay="100">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <img src="http://static.photos/people/200x200/2" alt="Profile" class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <h3 class="font-semibold">New World Builders</h3>
+                            <p class="text-gray-500 text-sm">Yesterday at 3:45 PM</p>
+                        </div>
+                        <div class="ml-auto">
+                            <i data-feather="facebook" class="text-blue-600"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        Climate justice is social justice. Our new initiative connects communities most affected by climate change with resources to build resilience. 
+                        Join us in creating a sustainable future for all.
+                    </p>
+                    <img src="http://static.photos/nature/640x360/1" alt="Climate Justice" class="w-full h-48 object-cover mb-4 rounded">
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4 text-gray-500">
+                            <span class="flex items-center"><i data-feather="message-circle" class="w-4 h-4 mr-1"></i> 42</span>
+                            <span class="flex items-center"><i data-feather="thumbs-up" class="w-4 h-4 mr-1"></i> 156</span>
+                        </div>
+                        <a href="https://facebook.com/newworldbuilders/posts/12345" target="_blank" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                            View on Facebook <i data-feather="external-link" class="w-4 h-4 inline"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Instagram Post -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden post-card platform-instagram" data-aos="fade-up" data-aos-delay="200">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <img src="http://static.photos/people/200x200/3" alt="Profile" class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <h3 class="font-semibold">EqualityNow</h3>
+                            <p class="text-gray-500 text-sm">3 days ago</p>
+                        </div>
+                        <div class="ml-auto">
+                            <i data-feather="instagram" class="text-pink-500"></i>
+                        </div>
+                    </div>
+                    <img src="http://static.photos/people/640x360/1" alt="Protest" class="w-full h-48 object-cover mb-4 rounded">
+                    <p class="text-gray-700 mb-4">
+                        The power of collective action! Thousands marched yesterday for workers' rights and fair wages. 
+                        Change happens when we stand together.  ✊ #UnionStrong
+                    </p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4 text-gray-500">
+                            <span class="flex items-center"><i data-feather="message-circle" class="w-4 h-4 mr-1"></i> 87</span>
+                            <span class="flex items-center"><i data-feather="heart" class="w-4 h-4 mr-1"></i> 1.2k</span>
+                        </div>
+                        <a href="https://instagram.com/p/ABC123" target="_blank" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                            View on Instagram <i data-feather="external-link" class="w-4 h-4 inline"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Twitter Post 2 -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden post-card platform-twitter" data-aos="fade-up">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <img src="http://static.photos/people/200x200/4" alt="Profile" class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <h3 class="font-semibold">FutureForward</h3>
+                            <p class="text-gray-500 text-sm">@futurefwd · 5h ago</p>
+                        </div>
+                        <div class="ml-auto">
+                            <i data-feather="twitter" class="text-blue-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        New study shows universal healthcare could save 68,000 lives annually in our country. 
+                        The data is clear - healthcare is a human right, not a privilege. #MedicareForAll
+                    </p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4 text-gray-500">
+                            <span class="flex items-center"><i data-feather="message-circle" class="w-4 h-4 mr-1"></i> 143</span>
+                            <span class="flex items-center"><i data-feather="repeat" class="w-4 h-4 mr-1"></i> 89</span>
+                            <span class="flex items-center"><i data-feather="heart" class="w-4 h-4 mr-1"></i> 512</span>
+                        </div>
+                        <a href="https://twitter.com/futurefwd/status/67890" target="_blank" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                            View on Twitter <i data-feather="external-link" class="w-4 h-4 inline"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LinkedIn Post -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden post-card platform-linkedin" data-aos="fade-up" data-aos-delay="100">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <img src="http://static.photos/people/200x200/5" alt="Profile" class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <h3 class="font-semibold">Sarah Johnson</h3>
+                            <p class="text-gray-500 text-sm">Policy Director at Progressive Think Tank · 1d ago</p>
+                        </div>
+                        <div class="ml-auto">
+                            <i data-feather="linkedin" class="text-blue-700"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        Thrilled to share our new report on equitable education funding. Our research shows how targeted investments in underserved communities can close achievement gaps and create opportunities for all students.
+                    </p>
+                    <img src="http://static.photos/education/640x360/1" alt="Education" class="w-full h-48 object-cover mb-4 rounded">
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4 text-gray-500">
+                            <span class="flex items-center"><i data-feather="message-circle" class="w-4 h-4 mr-1"></i> 28</span>
+                            <span class="flex items-center"><i data-feather="thumbs-up" class="w-4 h-4 mr-1"></i> 203</span>
+                        </div>
+                        <a href="https://linkedin.com/posts/sarahjohnson-12345" target="_blank" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                            View on LinkedIn <i data-feather="external-link" class="w-4 h-4 inline"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Twitter Post 3 -->
+            <div class="bg-white rounded-lg shadow-md overflow-hidden post-card platform-twitter" data-aos="fade-up" data-aos-delay="200">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <img src="http://static.photos/people/200x200/6" alt="Profile" class="w-10 h-10 rounded-full mr-3">
+                        <div>
+                            <h3 class="font-semibold">ClimateAction</h3>
+                            <p class="text-gray-500 text-sm">@climateactnow · 8h ago</p>
+                        </div>
+                        <div class="ml-auto">
+                            <i data-feather="twitter" class="text-blue-400"></i>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4">
+                        BREAKING: Major victory as the city council passes our Green New Deal initiative! 
+                        This means solar panels on all public buildings, electric buses, and thousands of green jobs. 
+                        Proof that grassroots organizing works!  🌱
+                    </p>
+                    <div class="flex justify-between items-center">
+                        <div class="flex space-x-4 text-gray-500">
+                            <span class="flex items-center"><i data-feather="message-circle" class="w-4 h-4 mr-1"></i> 76</span>
+                            <span class="flex items-center"><i data-feather="repeat" class="w-4 h-4 mr-1"></i> 324</span>
+                            <span class="flex items-center"><i data-feather="heart" class="w-4 h-4 mr-1"></i> 1.4k</span>
+                        </div>
+                        <a href="https://twitter.com/climateactnow/status/98765" target="_blank" class="text-blue-500 hover:text-blue-700 text-sm font-medium">
+                            View on Twitter <i data-feather="external-link" class="w-4 h-4 inline"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Load More Button -->
+        <div class="text-center mt-10">
+            <button class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                Load More Posts
             </button>
         </div>
-
-        <div class="news-grid" id="news-container">
-            <!-- News cards will be dynamically inserted here -->
-        </div>
     </div>
 
-    <footer>
-        <div class="container">
-            <p>Crypto Daily Pulse - Stay updated with the latest in cryptocurrency</p>
-            <p>News updates at 9:00 AM and 1:00 PM daily</p>
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Progressive Voices</h3>
+                    <p class="text-gray-400">Amplifying progressive ideas and movements for a better future.</p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Platforms</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Twitter</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Facebook</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Instagram</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">LinkedIn</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Topics</h3>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-gray-400 hover:text-white">Climate Justice</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Economic Equality</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Healthcare</a></li>
+                        <li><a href="#" class="text-gray-400 hover:text-white">Education</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect</h3>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white"><i data-feather="twitter"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i data-feather="facebook"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i data-feather="instagram"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-white"><i data-feather="linkedin"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+                <p>© 2023 Progressive Voices. All rights reserved.</p>
+            </div>
         </div>
     </footer>
 
-    <div class="notification" id="notification">News updated successfully!</div>
-
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Set last updated time
-            const now = new Date();
-            document.getElementById('update-time').textContent = now.toLocaleString();
-            
-            // Donation button functionality
-            document.getElementById('donate-btn').addEventListener('click', function() {
-                window.open('https://streamelements.com/nib1ru/tip', '_blank');
-            });
-            
-            // Function to generate AI-style placeholder images based on news content
-            function generateAIImage(newsItem) {
-                // In a real implementation, this would call an AI image generation API
-                // For this example, we'll use a service that creates placeholder images with text
-                
-                const keywords = newsItem.title.toLowerCase().split(' ').slice(0, 4).join(',');
-                const color = newsItem.category === 'bitcoin' ? 'ff9900' : 
-                             newsItem.category === 'ethereum' ? '8a92b2' :
-                             newsItem.category === 'defi' ? '00c6ff' :
-                             newsItem.category === 'nft' ? 'ff00aa' :
-                             newsItem.category === 'regulation' ? 'ffffff' : '0072ff';
-                
-                return `https://placehold.co/600x400/${color}/ffffff?text=${encodeURIComponent(keywords)}`;
-            }
-            
-            // Live RSS-based news fetcher (no API key required)
-            // We'll fetch several crypto news RSS feeds through the AllOrigins CORS proxy,
-            // parse them, merge, sort by published date and show only the most recent items.
-            // Assumption: showing the top 12 newest items across sources satisfies "ONLY THE MOST updated news".
-
-            const RSS_FEEDS = [
-                { url: 'https://www.coindesk.com/arc/outboundfeeds/rss/', source: 'CoinDesk' },
-                { url: 'https://cointelegraph.com/rss', source: 'Cointelegraph' },
-                { url: 'https://decrypt.co/feed', source: 'Decrypt' },
-                { url: 'https://www.theblock.co/feed', source: 'The Block' }
-            ];
-
-            const CORS_PROXY = 'https://api.allorigins.win/raw?url='; // public CORS proxy
-            const MAX_ITEMS = 12; // number of most-recent items to display
-
-            async function fetchFeed(feedUrl) {
-                try {
-                    const res = await fetch(CORS_PROXY + encodeURIComponent(feedUrl), { cache: 'no-store' });
-                    if (!res.ok) throw new Error('Feed fetch failed');
-                    const text = await res.text();
-                    const parser = new DOMParser();
-                    const xml = parser.parseFromString(text, 'text/xml');
-
-                    const items = Array.from(xml.querySelectorAll('item')).map(item => {
-                        const title = item.querySelector('title')?.textContent || '';
-                        const link = item.querySelector('link')?.textContent || item.querySelector('guid')?.textContent || '';
-                        const description = item.querySelector('description')?.textContent || '';
-                        const pubDate = item.querySelector('pubDate')?.textContent || item.querySelector('dc\:date')?.textContent || '';
-                        const isoDate = pubDate ? new Date(pubDate) : new Date();
-                        // attempt to find category or infer from title
-                        const category = (item.querySelector('category')?.textContent || '').toLowerCase();
-
-                        return {
-                            title: title.trim(),
-                            url: link.trim(),
-                            description: (description || '').replace(/<[^>]+>/g, '').trim(),
-                            date: isoDate,
-                            pubDateRaw: pubDate,
-                            source: '', // filled by caller
-                            category: category || inferCategoryFromTitle(title)
-                        };
-                    });
-
-                    return items;
-                } catch (err) {
-                    console.warn('Failed to fetch feed', feedUrl, err);
-                    return [];
-                }
-            }
-
-            function inferCategoryFromTitle(title) {
-                const t = title.toLowerCase();
-                if (t.includes('bitcoin') || t.includes('btc')) return 'bitcoin';
-                if (t.includes('ethereum') || t.includes('eth')) return 'ethereum';
-                if (t.includes('nft')) return 'nft';
-                if (t.includes('defi') || t.includes('decentral')) return 'defi';
-                if (t.includes('regulat') || t.includes('law') || t.includes('government')) return 'regulation';
-                return 'other';
-            }
-
-            // Merge feeds, dedupe by URL/title, sort by date desc and return top N
-            async function fetchLatestNews() {
-                const allItems = [];
-
-                await Promise.all(RSS_FEEDS.map(async feed => {
-                    const items = await fetchFeed(feed.url);
-                    items.forEach(it => {
-                        it.source = feed.source;
-                        allItems.push(it);
-                    });
-                }));
-
-                // dedupe by url (and title fallback)
-                const seen = new Set();
-                const deduped = allItems.filter(item => {
-                    const key = item.url || item.title;
-                    if (seen.has(key)) return false;
-                    seen.add(key);
-                    return true;
-                });
-
-                deduped.sort((a, b) => b.date - a.date);
-
-                // keep only recent items (top MAX_ITEMS)
-                return deduped.slice(0, MAX_ITEMS);
-            }
-
-            function formatDate(date) {
-                try { return new Date(date).toLocaleString(); } catch (e) { return '' + date; }
-            }
-
-            function generateNewsCards(newsItems) {
-                const newsContainer = document.getElementById('news-container');
-                newsContainer.innerHTML = '';
-
-                newsItems.forEach(news => {
-                    const newsCard = document.createElement('div');
-                    newsCard.className = 'news-card';
-                    newsCard.dataset.category = news.category || 'other';
-
-                    // Generate AI image based on news content
-                    const aiImageUrl = generateAIImage(news);
-
-                    newsCard.innerHTML = `
-                        <div class="news-image">
-                            <img src="${aiImageUrl}" alt="${news.title}">
-                            <div class="ai-generated-tag">AI Generated Image</div>
-                        </div>
-                        <div class="news-content">
-                            <div class="news-source">
-                                <span>${escapeHtml(news.source || '')}</span>
-                                <span class="news-date">${formatDate(news.date)}</span>
-                            </div>
-                            <h3 class="news-title">${escapeHtml(news.title)}</h3>
-                            <p class="news-description">${escapeHtml(news.description)}</p>
-                            <a href="${news.url}" target="_blank" rel="noopener noreferrer" class="news-link">Read full story →</a>
-                        </div>
-                    `;
-
-                    newsContainer.appendChild(newsCard);
-                });
-            }
-
-            function escapeHtml(str) {
-                return String(str || '').replace(/[&<>"']/g, function(s) {
-                    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":"&#39;"})[s];
-                });
-            }
-
-            async function loadAndShowLatest() {
-                const refreshBtn = document.getElementById('refresh-btn');
-                refreshBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i> Fetching...';
-                refreshBtn.disabled = true;
-
-                const news = await fetchLatestNews();
-
-                if (news.length === 0) {
-                    showNotification('Could not fetch live news. Showing cached content.');
-                } else {
-                    generateNewsCards(news);
-                    // set last-updated to the newest article time
-                    document.getElementById('update-time').textContent = formatDate(news[0].date);
-                    showNotification('News updated successfully!');
-                }
-
-                refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Refresh News';
-                refreshBtn.disabled = false;
-            }
-
-            // Initial live load
-            loadAndShowLatest();
-
-            // Refresh button functionality
-            document.getElementById('refresh-btn').addEventListener('click', function() {
-                loadAndShowLatest();
-            });
-            
-            // Filter button functionality
-            const filterButtons = document.querySelectorAll('.filter-btn');
-            filterButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const filter = this.dataset.filter;
-                    
-                    filterButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    if (filter === 'all') {
-                        document.querySelectorAll('.news-card').forEach(card => {
-                            card.style.display = 'block';
-                        });
-                    } else {
-                        document.querySelectorAll('.news-card').forEach(card => {
-                            if (card.dataset.category === filter) {
-                                card.style.display = 'block';
-                            } else {
-                                card.style.display = 'none';
-                            }
-                        });
-                    }
-                });
-            });
-            
-            // Notification function
-            function showNotification(message) {
-                const notification = document.getElementById('notification');
-                notification.textContent = message;
-                notification.classList.add('show');
-                
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 3000);
-            }
-            
-            // Simulate automatic news updates (morning and midday)
-            function simulateScheduledUpdates() {
-                const now = new Date();
-                const hours = now.getHours();
-                
-                if (hours === 9 || hours === 13) {
-                    showNotification('New news available! Refreshing...');
-                    // fetch latest live news and display
-                    loadAndShowLatest();
-                }
-            }
-            
-            // Check for scheduled updates on page load
-            simulateScheduledUpdates();
-            
-            // Check every hour for updates
-            setInterval(simulateScheduledUpdates, 60 * 60 * 1000);
+        AOS.init({
+            duration: 800,
+            easing: 'ease-in-out',
+            once: true
         });
+        feather.replace();
     </script>
 </body>
 </html>
